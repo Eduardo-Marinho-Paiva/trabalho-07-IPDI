@@ -20,8 +20,11 @@ Este projeto não é apenas uma apresentação de slides estáticos: trata-se de
 
 - **HTML5 Semântico:** Estruturação dos 25 slides, cabeçalhos, painéis e controles acessíveis.
 - **CSS3 Moderno:** Flexbox, CSS Grid, tipografia responsiva, variáveis CSS para alternância de temas (*Light Mode* e *Dark Mode*) com transições discretas.
-- **JavaScript Puro (ES6+):** Arquitetura modular sem bibliotecas pesadas externas (sem dependências de frameworks como React, Vue ou Angular).
-- **HTML5 Canvas API:** Renderização gráfica em tempo real das imagens sintetizadas, das funções de espalhamento pontual (PSF), dos espectros de Fourier e dos perfis 1D de intensidade.
+- **JavaScript Puro (ES6+):** Arquitetura modular sem dependências de frameworks pesados (sem React, Vue ou Angular).
+- **Tipografia Matemática KaTeX (Offline):** Todas as formulações matemáticas do seminário formatadas em $\LaTeX$ rigoroso, empacotadas localmente em `lib/katex/` com fontes WOFF2 embutidas (funciona 100% offline).
+- **HTML5 Canvas API com Renderização Híbrida:**
+  - *Matrizes 2D:* Renderização pixelada nítida (`.pixel-canvas`) para imagens sintetizadas, PSF e espectros de Fourier.
+  - *Perfis 1D e Histogramas:* Renderização vetorial anti-serrilhada (`.vector-plot-canvas`) com suporte a monitores de alta densidade (**HiDPI / Retina** via `devicePixelRatio`), eixos cartesianos graduados e dupla legenda gráfica (referência *ground-truth* vs curva restaurada).
 - **Motor Matemático Autônomo:**
   - Implementação pura do algoritmo **FFT 2D (Radix-2 Cooley-Tukey)** para filtragem rápida em Fourier.
   - Convolução espacial 2D com fronteiras periódicas e geradores de ruído gaussiano (Box-Muller) e Poisson.
@@ -33,13 +36,13 @@ Este projeto não é apenas uma apresentação de slides estáticos: trata-se de
 
 ## 3. Como Executar a Apresentação
 
-O projeto foi projetado para execução local imediata sem necessidade de compilação ou instalação de pacotes:
+O projeto foi projetado para execução imediata em qualquer computador ou projetor:
 
-1. **Execução Direta pelo Navegador:**
-   - Basta abrir o arquivo `index.html` diretamente em qualquer navegador moderno (Google Chrome, Mozilla Firefox, Microsoft Edge ou Safari).
-   - O projeto funciona perfeitamente pelo protocolo local `file:///`.
+1. **Execução Direta pelo Navegador (Recomendado pela Praticidade):**
+   - Basta abrir o arquivo `index.html` diretamente em qualquer navegador moderno (Chrome, Edge, Firefox, Safari).
+   - O projeto funciona perfeitamente pelo protocolo local `file:///` porque **todo o processamento de imagem é sintetizado em buffers de memória (`Float32Array`)**, sem requisições assíncronas `fetch()` e sem leitura de bitmaps externos que violariam as políticas de segurança de *CORS* ou *Tainted Canvas* do navegador.
 
-2. **Execução Opcional via Servidor HTTP Local (Recomendado):**
+2. **Execução Opcional via Servidor HTTP Local:**
    Caso prefira servir os arquivos por HTTP:
    ```bash
    # Com Python 3
@@ -50,7 +53,7 @@ O projeto foi projetado para execução local imediata sem necessidade de compil
 
 ---
 
-## 4. Navegação e Atalhos de Teclado
+## 4. Navegação, Atalhos e Modo Foco
 
 A aplicação foi planejada para apresentações em notebooks e projetores de alta resolução:
 
@@ -60,11 +63,23 @@ A aplicação foi planejada para apresentações em notebooks e projetores de al
 | `←` ou `PageUp` | Retorna para o slide anterior |
 | `Home` | Pula para o primeiro slide (Capa) |
 | `End` | Pula para o último slide (Referências) |
-| `Z` ou `z` | Alterna o **Modo Foco** (Tela Cheia sem distrações / oculta menus e botões) |
+| `Z` ou `z` | Alterna o **Modo Foco** (Tela Cheia imersiva sem distrações) |
 | `F` ou `f` | Alterna o modo de Tela Cheia (*Fullscreen*) convencional |
 | `T` ou `t` | Alterna entre **Light Mode** e **Dark Mode** |
 | `M` ou `m` | Abre / Fecha o Menu de navegação rápida por seções |
-| `Esc` | Fecha o menu de navegação ou sai do Modo Foco |
+| `Esc` | Fecha o menu de seções ou sai do Modo Foco |
+
+### Sobre o Modo Foco (`Z`):
+Ao acionar o atalho `Z`:
+- A apresentação entra automaticamente em **Tela Cheia**;
+- Oculta todos os elementos secundários da interface:
+  1. A div superior esquerda `#section-indicator` (evitando redundância com os crachás dos próprios slides);
+  2. O alternador de temas (`Light / Dark`);
+  3. Os botões de navegação e tela cheia inferiores;
+  4. A barra inferior central de atalhos;
+  5. O menu e botão lateral de seções.
+- Exibe apenas um botão discreto e translúcido `✕ Sair do Modo Foco` posicionado na **lateral inferior esquerda**, que também pode ser desativado pressionando `Z` ou `Esc`.
+- O layout do slide se expande para ocupar 100% da área útil do projetor e readapta a escala dos gráficos dinamicamente.
 
 *Observação:* Quando o usuário estiver manipulando controles interativos (sliders numéricos ou campos de entrada), os atalhos de navegação são temporariamente desativados para evitar avanços acidentais de slide.
 
