@@ -1,0 +1,85 @@
+/* ============================================================
+   dark.css — Tema Escuro · Seminário 7: Deconvolução e Restauração
+   Projetado com paleta profunda de alto contraste e sem fadiga visual.
+   ============================================================ */
+body.dark {
+  --bg: #090d16;
+  --card-bg: #111726;
+  --card-bg-trans: rgba(17, 23, 38, 0.92);
+  --chrome-bg: rgba(17, 23, 38, 0.88);
+  --canvas-bg: #0c121e;
+
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --text-tertiary: #64748b;
+  --text-muted: #475569;
+
+  --border: #1e293b;
+  --border-strong: #334155;
+  --hover-bg: #1e293b;
+  --tag-bg: #162032;
+  --progress-bg: #1e293b;
+
+  --accent: #3b82f6;
+  --accent-light: #60a5fa;
+  --accent-bg: #172554;
+  --accent-ring: rgba(59, 130, 246, 0.28);
+  --accent-2: #38bdf8;
+
+  /* Cores por Integrante */
+  --c-ana: #60a5fa;       /* Azul */
+  --c-cindy: #34d399;     /* Verde Esmeralda */
+  --c-edu: #fbbf24;       /* Âmbar / Ouro */
+  --c-luis: #a78bfa;      /* Roxo Violeta */
+  --c-paulo: #fb7185;     /* Rosa Carmim */
+
+  --tag-ana-bg: #172554; --tag-ana-fg: #93c5fd;
+  --tag-cindy-bg: #064e3b; --tag-cindy-fg: #6ee7b7;
+  --tag-edu-bg: #451a03; --tag-edu-fg: #fde68a;
+  --tag-luis-bg: #3b0764; --tag-luis-fg: #ddd6fe;
+  --tag-paulo-bg: #4c0519; --tag-paulo-fg: #fecdd3;
+  --tag-geral-bg: #1e293b; --tag-geral-fg: #cbd5e1;
+
+  --c-ok: #34d399;
+  --c-warn: #fb7185;
+  --c-info: #38bdf8;
+  --ok-bg: #064e3b;
+  --warn-bg: #4c0519;
+
+  --cover-a: #090d16;
+  --cover-b: #0f172a;
+  --cover-c: #1e1b4b;
+  --pat-grid: rgba(255, 255, 255, 0.04);
+  --pat-dot: rgba(96, 165, 250, 0.12);
+
+  --shadow-sm: 0 1px 4px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 18px rgba(0, 0, 0, 0.45);
+  --shadow-lg: 0 12px 36px rgba(0, 0, 0, 0.6);
+
+  --code-bg: #0c121e;
+  --code-fg: #f8fafc;
+}
+
+body.dark {
+  background: var(--bg);
+  color: var(--text-primary);
+}
+
+body.dark .slide-cover {
+  background: radial-gradient(circle at 10% 20%, #0f172a 0%, #090d16 60%, #1e1035 100%);
+}
+
+body.dark canvas {
+  background: var(--canvas-bg);
+}
+
+body.dark .card,
+body.dark .demo-box,
+body.dark .formula-box,
+body.dark .member-pill {
+  box-shadow: var(--shadow-md);
+}
+
+body.dark .cmp-table tbody tr:hover {
+  background: #172238;
+}

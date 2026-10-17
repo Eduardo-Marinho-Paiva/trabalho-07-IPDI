@@ -1,0 +1,1326 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Deconvolução e Restauração de Imagens — Seminário 7 · PDI</title>
+  <meta name="description" content="Apresentação web interativa sobre o problema de deconvolução e restauração de imagens: Wiener, Richardson-Lucy, Entropia e Variação Total.">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/light.css" id="theme-light">
+  <link rel="stylesheet" href="css/dark.css" id="theme-dark" disabled>
+  <link rel="stylesheet" href="lib/katex/katex.min.css">
+  <script src="lib/katex/katex.min.js"></script>
+  <script src="lib/katex/auto-render.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="light">
+
+  <!-- ======================= CHROME / CONTROLES ======================= -->
+  <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+  <div class="section-indicator" id="section-indicator">Capa</div>
+  <div class="slide-counter" id="slide-counter">1 / 25</div>
+
+  <nav class="nav-menu" aria-label="Navegação por seções">
+    <button class="nav-toggle" id="nav-toggle" aria-expanded="false" title="Menu de seções (M)">☰ Seções</button>
+    <div class="nav-items" id="nav-items" role="list">
+      <div class="nav-group">
+        <span class="nav-group-label">Abertura e Problema</span>
+        <button data-slide="0">1. Capa</button>
+        <button data-slide="1">2. O Problema da Restauração</button>
+        <button data-slide="2">3. Como uma Imagem é Degradada?</button>
+        <button data-slide="3">4. Modelo Matemático</button>
+        <button data-slide="4">5. Por que a Inversão é Difícil?</button>
+        <button data-slide="5">6. Visão Geral dos 4 Métodos</button>
+      </div>
+      <div class="nav-group">
+        <span class="nav-group-label">Cindy · Deconvolução de Wiener</span>
+        <button data-slide="6">7. Deconvolução de Wiener</button>
+        <button data-slide="7">8. Como o Wiener Funciona?</button>
+        <button data-slide="8">9. Vantagens e Limitações do Wiener</button>
+      </div>
+      <div class="nav-group">
+        <span class="nav-group-label">Eduardo · Richardson–Lucy</span>
+        <button data-slide="9">10. Deconvolução de Richardson–Lucy</button>
+        <button data-slide="10">11. Como as Iterações Funcionam?</button>
+        <button data-slide="11">12. Vantagens e Limitações de R–L</button>
+      </div>
+      <div class="nav-group">
+        <span class="nav-group-label">Luis · Métodos por Entropia</span>
+        <button data-slide="12">13. O que é Entropia em Imagens?</button>
+        <button data-slide="13">14. Deconvolução por Entropia (MEM)</button>
+        <button data-slide="14">15. Vantagens e Limitações da Entropia</button>
+      </div>
+      <div class="nav-group">
+        <span class="nav-group-label">Paulo · Variação Total e Síntese</span>
+        <button data-slide="15">16. O que é Variação Total?</button>
+        <button data-slide="16">17. Restauração com Regularização TV</button>
+        <button data-slide="17">18. Efeito do Parâmetro λ</button>
+        <button data-slide="18">19. Vantagens e Limitações da TV</button>
+        <button data-slide="19">20. Aplicações em Medicina</button>
+        <button data-slide="20">21. Aplicações em Engenharia</button>
+        <button data-slide="21">22. Comparação dos Quatro Métodos</button>
+        <button data-slide="22">23. Mesma Imagem, 4 Restaurações</button>
+        <button data-slide="23">24. Conclusões e Discussão</button>
+        <button data-slide="24">25. Referências Bibliográficas</button>
+      </div>
+    </div>
+  </nav>
+
+  <button class="focus-exit-btn" id="focus-exit-btn" title="Sair do Modo Foco (Z ou Esc)" aria-label="Sair do Modo Foco">✕ Sair do Modo Foco</button>
+  <button class="theme-toggle" id="theme-toggle" aria-label="Alternar tema">
+    <span class="theme-icon-light">☀</span>
+    <span class="theme-icon-dark">🌙</span>
+    <span id="theme-label">Light</span>
+  </button>
+  <button class="fullscreen-btn" id="fullscreen-btn" title="Tela Cheia (F)" aria-label="Tela cheia">⛶</button>
+  <button class="nav-btn nav-prev" id="prev-btn" title="Anterior (←)" aria-label="Slide anterior">‹</button>
+  <button class="nav-btn nav-next" id="next-btn" title="Próximo (→)" aria-label="Próximo slide">›</button>
+  <div class="keyboard-hint" id="keyboard-hint">← → navegar · <span class="kbd">F</span> tela cheia · <span class="kbd">Z</span> foco · <span class="kbd">T</span> tema · <span class="kbd">M</span> menu</div>
+
+  <!-- ======================= SLIDES (EXATAMENTE 25) ======================= -->
+  <main class="slides-container" id="slides-container">
+
+    <!-- ============ SLIDE 1 — CAPA ============ -->
+    <section class="slide slide-cover active" data-section="Capa" data-init="Degradation.initCoverTeaser" aria-hidden="false">
+      <div class="cover-container">
+        <div class="cover-left">
+          <div class="cover-badge anim">Seminário 7 · Processamento Digital de Imagens</div>
+          <h1 class="cover-title anim">Deconvolução e<br><span class="grad">Restauração</span> de Imagens</h1>
+          <p class="cover-subtitle anim">Recuperando informações perdidas pelo desfoque óptico e pelo ruído de aquisição.</p>
+          <div class="cover-members anim">
+            <div class="member-pill">
+              <span class="member-num">1</span>
+              <span class="member-name">Ana Beatriz</span>
+              <span class="member-topic">Degradação, Modelo Matemático e Problema Inverso</span>
+            </div>
+            <div class="member-pill">
+              <span class="member-num">2</span>
+              <span class="member-name">Cindy Vitoria</span>
+              <span class="member-topic">Deconvolução de Wiener (Filtragem Estatística)</span>
+            </div>
+            <div class="member-pill">
+              <span class="member-num">3</span>
+              <span class="member-name">Eduardo Marinho</span>
+              <span class="member-topic">Richardson–Lucy (Atualização Iterativa Poisson)</span>
+            </div>
+            <div class="member-pill">
+              <span class="member-num">4</span>
+              <span class="member-name">Luis Jeronimo</span>
+              <span class="member-topic">Métodos Baseados em Entropia (Critério de Informação)</span>
+            </div>
+            <div class="member-pill">
+              <span class="member-num">5</span>
+              <span class="member-name">Paulo Sérgio</span>
+              <span class="member-topic">Variação Total (ROF), Aplicações e Comparação</span>
+            </div>
+          </div>
+        </div>
+        <div class="cover-right anim">
+          <div class="cover-canvas-box">
+            <canvas id="cover-canvas" width="280" height="280" class="pixel-canvas"></canvas>
+            <div class="cover-canvas-caption">
+              <span class="pulse-dot"></span>
+              <span id="cover-caption">Demonstração Interativa ao Vivo</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ SLIDE 2 — O PROBLEMA ============ -->
+    <section class="slide" data-section="1 · Ana Beatriz — Introdução" data-init="Degradation.initProblemSlide" aria-hidden="true">
+      <div class="slide-content">
+        <div class="slide-header anim">
+          <span class="slide-tag tag-ana">1 · Ana Beatriz — Introdução</span>
+          <h2>O Problema da Restauração de Imagens</h2>
+          <p class="subtitle">Como reconstruir uma estimativa fidedigna quando a física da aquisição corrompe a cena.</p>
+        </div>
+        <div class="grid-3 anim">
+          <div class="card">
+            <div class="card-title">1. Imagem de Referência</div>
+            <div class="canvas-viewport">
+              <canvas id="canvas-prob-orig" width="190" height="190" class="pixel-canvas"></canvas>
+            </div>
+            <p class="canvas-caption">Cena original ideal (não observável)</p>
+            <div class="card-body">
+              Representa o padrão real de luz da cena. Em problemas práticos, <strong>ela é desconhecida</strong> e serve apenas de gabarito para simulações e validações científicas.
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-title">2. Imagem Observada (Degradada)</div>
+            <div class="canvas-viewport">
+              <canvas id="canvas-prob-deg" width="190" height="190" class="pixel-canvas"></canvas>
+            </div>
+            <p class="canvas-caption">Desfoque óptico + ruído estocástico</p>
+            <div class="card-body">
+              O que o sensor realmente adquire: perda de frequências altas, bordas espalhadas e contaminação por flutuações térmicas ou ruído de fótons.
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-title">3. Imagem Estimada (Restaurada)</div>
+            <div class="canvas-viewport">
+              <canvas id="canvas-prob-rest" width="190" height="190" class="pixel-canvas"></canvas>
+            </div>
+            <p class="canvas-caption">Estimativa gerada por algoritmo</p>
+            <div class="card-body">
+              Tentativa de reverter a degradação sem amplificar o ruído. <strong>Atenção:</strong> restauração busca modelar a degradação; realce busca apenas agradar a visão humana.
+            </div>
+          </div>
+        </div>
+        <div class="callout callout-info anim">
+          <strong>Distinção Fundamental:</strong> Enquanto técnicas de <em>realce</em> aplicam filtros heurísticos subjetivos (ex.: contraste ou unsharp masking), a <em>restauração</em> é orientada a um critério objetivo fundamentado na física de aquisição da imagem.
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ SLIDE 3 — COMO UMA IMAGEM É DEGRADADA? ============ -->
+    <section class="slide" data-section="1 · Ana Beatriz — Degradação" data-init="Degradation.initDemoA" aria-hidden="true">
+      <div class="slide-content">
+        <div class="slide-header anim">
+          <span class="slide-tag tag-ana">1 · Ana Beatriz — Degradação</span>
+          <h2>Como uma Imagem é Degradada? (Demonstração A)</h2>
+          <p class="subtitle">O caminho físico da luz: do objeto até a quantização ruidosa no sensor eletrônico.</p>
+        </div>
+        <div class="pipeline-flow anim">
+          <div class="pipe-step">
+            <span class="pipe-step-num">Passo 1</span>
+            <span class="pipe-step-name">Cena Original x</span>
+            <span class="pipe-step-desc">Refletância ou emissão contínua</span>
+          </div>
+          <span class="pipe-arrow">→</span>
+          <div class="pipe-step">
+            <span class="pipe-step-num">Passo 2</span>
+            <span class="pipe-step-name">Sistema Óptico</span>
+            <span class="pipe-step-desc">Lentes, difração e foco imperfeito</span>
+          </div>
+          <span class="pipe-arrow">→</span>
+          <div class="pipe-step">
+            <span class="pipe-step-num">Passo 3</span>
+            <span class="pipe-step-name">Desfoque (PSF)</span>
+            <span class="pipe-step-desc">Convolução espacial h * x</span>
+          </div>
+          <span class="pipe-arrow">→</span>
+          <div class="pipe-step">
+            <span class="pipe-step-num">Passo 4</span>
+            <span class="pipe-step-name">Ruído n</span>
+            <span class="pipe-step-desc">Térmico, leitura e fótons</span>
+          </div>
+          <span class="pipe-arrow">→</span>
+          <div class="pipe-step">
+            <span class="pipe-step-num">Passo 5</span>
+            <span class="pipe-step-name">Observação y</span>
+            <span class="pipe-step-desc">Imagem final registrada</span>
+          </div>
+        </div>
+
+        <div class="demo-box anim">
+          <div class="demo-title-row">
+            <span class="demo-title">Laboratório Interativo de Degradação: Ajuste Desfoque Óptico e Ruído</span>
+            <div class="demo-controls">
+              <div class="control-group">
+                <label for="demoA-type">Tipo PSF:</label>
+                <select id="demoA-type" class="btn">
+                  <option value="gaussian">Desfoque Gaussiano (Óptico)</option>
+                  <option value="motion">Movimento Linear (45°)</option>
+                </select>
+              </div>
+              <div class="control-group">
+                <label for="demoA-blur">Raio (σ):</label>
+                <input type="range" id="demoA-blur" min="0.5" max="4.0" step="0.2" value="1.8">
+                <span class="control-val" id="demoA-blur-val">1.8 px</span>
+              </div>
+              <div class="control-group">
+                <label for="demoA-noise">Ruído Gaussiano:</label>
+                <input type="range" id="demoA-noise" min="0.0" max="0.12" step="0.01" value="0.03">
+                <span class="control-val" id="demoA-noise-val">3%</span>
+              </div>
+            </div>
+          </div>
+          <div class="demo-grid-4">
+            <div>
+              <canvas id="canvas-demoA-orig" width="160" height="160" class="pixel-canvas"></canvas>
+              <div class="canvas-caption">1. Referência Original x</div>
+            </div>
+            <div>
+              <canvas id="canvas-demoA-psf" width="160" height="160" class="pixel-canvas"></canvas>
+              <div class="canvas-caption">2. PSF h(x,y) Ampliada</div>
+            </div>
+            <div>
+              <canvas id="canvas-demoA-result" width="160" height="160" class="pixel-canvas"></canvas>
+              <div class="canvas-caption">3. Degradada y = h * x + n</div>
+            </div>
+            <div>
+              <canvas id="canvas-demoA-profile" width="300" height="160" class="vector-plot-canvas"></canvas>
+              <div class="canvas-caption">4. Perfil de Intensidade 1D</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ SLIDE 4 — MODELO MATEMÁTICO ============ -->
+    <section class="slide" data-section="1 · Ana Beatriz — Modelo Matemático" aria-hidden="true">
+      <div class="slide-content">
+        <div class="slide-header anim">
+          <span class="slide-tag tag-ana">1 · Ana Beatriz — Modelo Matemático</span>
+          <h2>O Modelo Matemático da Degradação</h2>
+          <p class="subtitle">Representações matricial e contínua do sistema óptico linear invariante no espaço (LSI).</p>
+        </div>
+        <div class="grid-2 anim">
+          <div class="card">
+            <div class="card-title">Formulação Contínua / Convolucional</div>
+            <div class="formula-box">
+              $$y(s, t) = (h * x)(s, t) + n(s, t) = \iint h(s - \alpha, t - \beta)\,x(\alpha, \beta)\,d\alpha\,d\beta + n(s, t)$$
+            </div>
+            <div class="card-body">
+              <p>No domínio discreto de imagens digitais (matrizes 2D):</p>
+              <div class="formula-box">
+                $$y(i, j) = \sum_{m} \sum_{n} h(i - m, j - n)\,x(m, n) + n(i, j)$$
+              </div>
+              <p>Assume-se que o desfoque é <strong>espacialmente invariante</strong>: a resposta a um ponto luminoso isolado possui o mesmo formato em qualquer posição do campo visual.</p>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">Formulação Matricial Algébrica</div>
+            <div class="formula-box">
+              $$\mathbf{y} = \mathbf{H}\mathbf{x} + \mathbf{n}$$
+            </div>
+            <div class="card-body">
+              <div class="formula-legend">
+                <div><span class="symbol">$\mathbf{x}$</span> : Vetor da imagem original ($N^2 \times 1$)</div>
+                <div><span class="symbol">$\mathbf{y}$</span> : Vetor da imagem observada ($N^2 \times 1$)</div>
+                <div><span class="symbol">$\mathbf{H}$</span> : Matriz de degradação ($N^2 \times N^2$, Block-Toeplitz)</div>
+                <div><span class="symbol">$\mathbf{n}$</span> : Vetor de ruído aleatório aditivo</div>
+              </div>
+              <p style="margin-top: 10px;">
+                A matriz <strong>H</strong> condensa a convolução com a Função de Espalhamento Pontual (<strong>PSF</strong>). Sob condições de contorno periódicas, <strong>H</strong> é diagonalizada pela Transformada Discreta de Fourier 2D!
+              </p>
+            </div>
+          </div>
+        </div>
+        <div class="callout callout-warn anim">
+          <strong>Atenção Conceitual:</strong> Em situações reais com lentes grande-angulares ou movimento rotacional, o desfoque pode variar com a posição espacial (Space-Variant). A formulação convolucional clássica é uma simplificação amplamente adotada.
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ SLIDE 5 — POR QUE A INVERSÃO É DIFÍCIL? ============ -->
+    <section class="slide" data-section="1 · Ana Beatriz — Problema Inverso" data-init="Degradation.initInverseExplosion" aria-hidden="true">
+      <div class="slide-content">
+        <div class="slide-header anim">
+          <span class="slide-tag tag-ana">1 · Ana Beatriz — Problema Inverso</span>
+          <h2>Por que a Inversão Direta Falha? (O Problema Mal-Posto)</h2>
+          <p class="subtitle">A ilusão da divisão ingênua no domínio de Fourier e a catástrofe da amplificação de ruído.</p>
+        </div>
+        <div class="grid-2 anim">
+          <div class="card">
+            <div class="card-title">A Tentativa Ingênua: Filtro Inverso</div>
+            <div class="formula-box">
+              $$\hat{X}(u, v) = \frac{Y(u, v)}{H(u, v)} = X(u, v) + \frac{N(u, v)}{H(u, v)}$$
+            </div>
+            <div class="card-body">
+              <ul>
+                <li><strong>Atenuação da OTF:</strong> A Função de Transferência Óptica $H(u,v)$ decai rapidamente para zero nas médias e altas frequências.</li>
+                <li><strong>Divisão por Zero / Valores Próximos de Zero:</strong> Quando $H(u,v) \to 0$, o termo de ruído $N(u,v) / H(u,v)$ <strong>explode para o infinito</strong>!</li>
+                <li><strong>Mau Condicionamento de Hadamard:</strong> O problema inverso viola a condição de continuidade: pequenas perturbações no dado de entrada causam erros catastróficos na saída.</li>
+              </ul>
+              <div class="callout callout-warn" style="margin-top: 10px;">
+                Mesmo com um ruído mínimo imperceptível de 0.8%, a inversão direta gera uma tempestade de artefatos caóticos ininteligíveis.
+              </div>
+            </div>
+          </div>
+
+          <div class="demo-box">
+            <div class="demo-title">Resultado da Inversão Direta Ingênua com 0.8% de Ruído</div>
+            <div class="grid-2">
+              <div>
+                <canvas id="canvas-inv-degraded" width="160" height="160" class="pixel-canvas"></canvas>
+                <div class="canvas-caption">Observação y (0.8% ruído)</div>
+              </div>
+              <div>
+                <canvas id="canvas-inv-result" width="160" height="160" class="pixel-canvas"></canvas>
+                <div class="canvas-caption">X̂ = Y / H (Explosão de Ruído)</div>
+              </div>
+            </div>
+            <canvas id="canvas-inv-profile" width="380" height="110" class="vector-plot-canvas" style="margin-top: 8px;"></canvas>
+            <div class="canvas-caption">Perfil 1D demonstrando oscilações descontroladas</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ SLIDE 6 — VISÃO GERAL DOS 4 MÉTODOS ============ -->
+    <section class="slide" data-section="Visão Geral · Síntese" aria-hidden="true">
+      <div class="slide-content">
+        <div class="slide-header anim">
+          <span class="slide-tag tag-geral">Visão Geral · Síntese Metodológica</span>
+          <h2>Os Quatro Paradigmas da Deconvolução</h2>
+          <p class="subtitle">Como diferentes formulações matemáticas contornam a instabilidade do problema inverso.</p>
+        </div>
+        <div class="grid-4 anim">
+          <div class="card" style="border-top: 4px solid var(--c-cindy);">
+            <span class="badge" style="background: var(--tag-cindy-bg); color: var(--tag-cindy-fg);">1 · Cindy Vitoria</span>
+            <div class="card-title">Deconvolução de Wiener</div>
+            <div class="card-body">
+              <strong>Filtragem Estatística:</strong> Minimiza o erro quadrático médio (MMSE) no domínio da frequência assumindo processos estocásticos estacionários para sinal e ruído.
+            </div>
+          </div>
+
+          <div class="card" style="border-top: 4px solid var(--c-edu);">
+            <span class="badge" style="background: var(--tag-edu-bg); color: var(--tag-edu-fg);">2 · Eduardo Marinho</span>
+            <div class="card-title">Richardson–Lucy</div>
+            <div class="card-body">
+              <strong>Iterativo Probabilístico:</strong> Máxima verossimilhança sob ruído de contagem de Poisson. Atualizações multiplicativas conservam fluxo e garantem positividade.
+            </div>
+          </div>
+
+          <div class="card" style="border-top: 4px solid var(--c-luis);">
+            <span class="badge" style="background: var(--tag-luis-bg); color: var(--tag-luis-fg);">3 · Luis Jeronimo</span>
+            <div class="card-title">Métodos por Entropia</div>
+            <div class="card-body">
+              <strong>Critério de Informação:</strong> Máxima Entropia (MEM) seleciona a solução mais uniforme e compatível com as restrições físicas, eliminando anéis de ringing.
+            </div>
+          </div>
+
+          <div class="card" style="border-top: 4px solid var(--c-paulo);">
+            <span class="badge" style="background: var(--tag-paulo-bg); color: var(--tag-paulo-fg);">4 · Paulo Sérgio</span>
+            <div class="card-title">Variação Total (ROF)</div>
+            <div class="card-body">
+              <strong>Regularização Espacial L1:</strong> Penaliza a norma L1 do gradiente, preservando descontinuidades e bordas nítidas sem introduzir oscilações espúrias.
+            </div>
+          </div>
+        </div>
+        <div class="callout callout-info anim">
+          <strong>Síntese Conceitual:</strong> Cada paradigma aborda o problema inverso através de um pressuposto matemático diferente: filtragem estatística em Fourier (Wiener), verossimilhança de contagem de fótons (Richardson–Lucy), teoria da informação (Entropia) ou geometria espacial das descontinuidades (Variação Total).
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ SLIDE 7 — DECONVOLUÇÃO DE WIENER ============ -->
+    <section class="slide" data-section="2 · Cindy Vitoria — Wiener" aria-hidden="true">
+      <div class="slide-content">
+        <div class="slide-header anim">
+          <span class="slide-tag tag-cindy">2 · Cindy Vitoria — Wiener</span>
+          <h2>Deconvolução de Wiener: Fundamentos Estatísticos</h2>
+          <p class="subtitle">O equilíbrio ótimo do Erro Quadrático Médio Mínimo (MMSE) no domínio de Fourier.</p>
+        </div>
+        <div class="grid-2 anim">
+          <div class="card">
+            <div class="card-title">Princípio da Filtragem Ótima de Wiener</div>
+            <div class="card-body">
+              <p>Formulado por Norbert Wiener (1949), o objetivo é encontrar um filtro linear linear invariante $\mathbf{w}$ tal que a estimativa $\hat{\mathbf{x}} = \mathbf{w} * \mathbf{y}$ minimize:</p>
+              <div class="formula-box">
+                $$\min_{\mathbf{w}} \mathbb{E}\left\{ \|\mathbf{x} - \hat{\mathbf{x}}\|_2^2 \right\} = \min_{\mathbf{w}} \mathbb{E}\left\{ \|\mathbf{x} - \mathbf{W}\mathbf{y}\|_2^2 \right\}$$
+              </div>
+              <p>Diferente do filtro inverso ingênuo que tenta forçar ganho unitário em todas as frequências, o filtro de Wiener <strong>atenua as frequências onde o ruído predomina sobre o sinal</strong>.</p>
+              <ul style="margin-top: 10px;">
+                <li>Opera diretamente sobre as densidades espectrais de potência do sinal e do ruído.</li>
+                <li>Implementação extremamente eficiente através de 2 transformadas FFT 2D.</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">Fluxo de Restauração no Domínio da Frequência</div>
+            <div class="pipeline-flow" style="flex-direction: column; align-items: stretch; gap: 10px;">
+              <div class="pipe-step" style="text-align: left; align-items: flex-start;">
+                <span class="pipe-step-name">1. Domínio Espacial: Observação y + PSF h</span>
+                <span class="pipe-step-desc">A imagem e a PSF estimada são transferidas para o domínio de Fourier via FFT 2D.</span>
+              </div>
+              <div class="pipe-step" style="text-align: left; align-items: flex-start;">
+                <span class="pipe-step-name">2. Domínio Espectral: W(u,v) · Y(u,v)</span>
+                <span class="pipe-step-desc">Cada coeficiente de Fourier é multiplicado pelo ganho complexo ótimo do filtro de Wiener.</span>
+              </div>
+              <div class="pipe-step" style="text-align: left; align-items: flex-start;">
+                <span class="pipe-step-name">3. Domínio Espacial: x̂ = Re{ IFFT2D( X̂ ) }</span>
+                <span class="pipe-step-desc">Transformada inversa reconstrói a imagem espacial restaurada.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ SLIDE 8 — COMO O WIENER FUNCIONA? ============ -->
+    <section class="slide" data-section="2 · Cindy Vitoria — Wiener" data-init="Wiener.initDemoB" aria-hidden="true">
+      <div class="slide-content">
+        <div class="slide-header anim">
+          <span class="slide-tag tag-cindy">2 · Cindy Vitoria — Wiener</span>
+          <h2>Como o Wiener Funciona? (Demonstração B)</h2>
+          <p class="subtitle">A parametrização pelo fator K (Relação Sinal-Ruído) e a supressão de altas frequências.</p>
+        </div>
+        <div class="formula-box anim">
+          $$W(u, v) = \frac{H^*(u, v)}{|H(u, v)|^2 + \frac{S_n(u,v)}{S_x(u,v)}} \approx \frac{H^*(u, v)}{|H(u, v)|^2 + K}$$
+        </div>
+
+        <div class="demo-box anim">
+          <div class="demo-title-row">
+            <span class="demo-title">Laboratório Interativo: Compromisso de Wiener (Ajuste o parâmetro K)</span>
+            <div class="demo-controls">
+              <div class="control-group">
+                <label for="wiener-logk">log₁₀(K):</label>
+                <input type="range" id="wiener-logk" min="-5.0" max="-0.5" step="0.1" value="-2.3">
+                <span class="control-val" id="wiener-k-val">K = 0.0050</span>
+              </div>
+              <button class="btn" id="wiener-preset-low">K Muito Baixo</button>
+              <button class="btn btn-primary" id="wiener-preset-opt">K Equilibrado</button>
+              <button class="btn" id="wiener-preset-high">K Muito Alto</button>
+              <span id="wiener-state-badge" class="badge badge-ok">K equilibrado</span>
+            </div>
+          </div>
+
+          <div class="demo-grid-4">
+            <div>
+              <canvas id="canvas-wiener-deg" width="160" height="160" class="pixel-canvas"></canvas>
+              <div class="canvas-caption">1. Degradada Observada y</div>
+            </div>
+            <div>
+              <canvas id="canvas-wiener-spectrum" width="160" height="160" class="pixel-canvas"></canvas>
+              <div class="canvas-caption">2. Espectro do Filtro |W(u,v)|</div>
+            </div>
+            <div>
+              <canvas id="canvas-wiener-rest" width="160" height="160" class="pixel-canvas"></canvas>
+              <div class="canvas-caption">3. Restaurada x̂ (Wiener)</div>
+            </div>
+            <div>
+              <canvas id="canvas-wiener-profile" width="300" height="160" class="vector-plot-canvas"></canvas>
+              <div class="canvas-caption">4. Perfil 1D (Note o Ringing)</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ SLIDE 9 — VANTAGENS E LIMITAÇÕES DO WIENER ============ -->
+    <section class="slide" data-section="2 · Cindy Vitoria — Wiener" aria-hidden="true">
+      <div class="slide-content">
+        <div class="slide-header anim">
+          <span class="slide-tag tag-cindy">2 · Cindy Vitoria — Wiener</span>
+          <h2>Wiener: Vantagens, Limitações e Artefatos</h2>
+          <p class="subtitle">O fenômeno do anelamento de Gibbs e a sensibilidade à estimativa de potência espectral.</p>
+        </div>
+        <div class="grid-2 anim">
+          <div class="card">
+            <div class="card-title">Vantagens do Filtro de Wiener</div>
+            <div class="card-body">
+              <ul>
+                <li><strong>Eficiência Computacional Extrema:</strong> Uma vez calculadas as FFTs da imagem e da PSF, a filtragem é uma multiplicação ponto a ponto $O(N^2)$, levando menos de 5ms.</li>
+                <li><strong>Fundamentação MMSE Sólida:</strong> Garante matematicamente o menor erro médio quadrático caso as hipóteses gaussianas/estacionárias sejam válidas.</li>
+                <li><strong>Não Requer Iterações:</strong> Solução em forma fechada (closed-form), ideal para sistemas de vídeo ou processamento em tempo real.</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">Limitações e Artefatos Típicos</div>
+            <div class="card-body">
+              <ul>
+                <li><strong>Anelamento de Gibbs (Ringing):</strong> Ao redor de bordas abruptas de alto contraste, surgem ondulações concêntricas decorrentes do truncamento suave de frequências.</li>
+                <li><strong>Valores Negativos Espúrios:</strong> A filtragem linear não impõe restrição de não-negatividade ($x \ge 0$), gerando pixels pretos artificiais.</li>
+                <li><strong>Dependência Crítica de K:</strong> Na prática, a razão sinal-ruído $S_n/S_x$ varia por frequência e raramente é conhecida com exatidão a priori.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="callout callout-info anim">
+          <strong>Resumo Prático:</strong> O filtro de Wiener garante matematicamente o erro quadrático médio mínimo (MMSE) e executa em tempo quase instantâneo $O(N \log N)$, mas sofre com anéis de Gibbs e não impõe restrição de positividade.
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ SLIDE 10 — DECONVOLUÇÃO DE RICHARDSON–LUCY ============ -->
+    <section class="slide" data-section="3 · Eduardo Marinho — Richardson–Lucy" aria-hidden="true">
+      <div class="slide-content">
+        <div class="slide-header anim">
+          <span class="slide-tag tag-edu">3 · Eduardo Marinho — Richardson–Lucy</span>
+          <h2>Deconvolução de Richardson–Lucy: O Modelo Probabilístico</h2>
+          <p class="subtitle">A abordagem iterativa de Máxima Verossimilhança sob contagem de fótons (Ruído de Poisson).</p>
+        </div>
+        <div class="grid-2 anim">
+          <div class="card">
+            <div class="card-title">Histórico e Formulação Bayesiana</div>
+            <div class="card-body">
+              <p>Derivado independentemente por <strong>William H. Richardson (1972)</strong> e <strong>Leon B. Lucy (1974)</strong> no contexto astronômico e espectroscópico.</p>
+              <p>Assume que a chegada de fótons no sensor obedece a uma <strong>distribuição de Poisson</strong>:</p>
+              <div class="formula-box">
+                $$P(\mathbf{y} \mid \mathbf{x}) = \prod_{i} \frac{ ((\mathbf{H}\mathbf{x})_i)^{y_i} \cdot e^{-(\mathbf{H}\mathbf{x})_i} }{y_i !}$$
+              </div>
+              <p>A maximização da log-verossimilhança pelo algoritmo de Expectation-Maximization (EM) conduz a uma regra de atualização multiplicativa elegante e intuitiva.</p>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">O Ciclo de Atualização de Richardson–Lucy</div>
+            <div class="formula-box">
+              $$\hat{\mathbf{x}}^{(k+1)} = \hat{\mathbf{x}}^{(k)} \cdot \left[ \mathbf{h}^* * \left( \frac{\mathbf{y}}{\mathbf{h} * \hat{\mathbf{x}}^{(k)} + \varepsilon} \right) \right]$$
+            </div>
+            <div class="card-body">
+              <div class="formula-legend">
+                <div><span class="symbol">$\hat{\mathbf{x}}^{(k)}$</span> : Estimativa atual da imagem no passo $k$</div>
+                <div><span class="symbol">$\mathbf{h} * \hat{\mathbf{x}}^{(k)}$</span> : Projeção direta da estimativa no modelo óptico</div>
+                <div><span class="symbol">$\mathbf{y} / (\dots)$</span> : Razão de compatibilidade pixel a pixel</div>
+                <div><span class="symbol">$\mathbf{h}^*$</span> : PSF adjunta / retroprojetada ($h(-x,-y)$)</div>
+              </div>
+              <p style="margin-top: 10px;">
+                <strong>Conservação de Fluxo:</strong> A energia total é preservada ($\sum \hat{x}_i^{(k+1)} = \sum y_i$), e se $\hat{x}^{(0)} > 0$, a solução permanece <strong>estritamente não-negativa</strong> por construção multiplicativa!
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ SLIDE 11 — COMO AS ITERAÇÕES FUNCIONAM? ============ -->
+    <section class="slide" data-section="3 · Eduardo Marinho — Richardson–Lucy" data-init="RL.initDemoC" aria-hidden="true">
+      <div class="slide-content">
+        <div class="slide-header anim">
+          <span class="slide-tag tag-edu">3 · Eduardo Marinho — Richardson–Lucy</span>
+          <h2>Como as Iterações Funcionam? (Demonstração C)</h2>
+          <p class="subtitle">O fenômeno da semi-convergência: a fronteira sutil entre nitidez ideal e amplificação de ruído.</p>
+        </div>
+
+        <div class="demo-box anim">
+          <div class="demo-title-row">
+            <span class="demo-title">Laboratório Interativo: Controle e Evolução das Iterações de Richardson–Lucy</span>
+            <div class="demo-controls">
+              <div class="control-group">
+                <label for="rl-iter">Iterações (k):</label>
+                <input type="range" id="rl-iter" min="1" max="80" step="1" value="15">
+                <span class="control-val" id="rl-iter-val">15 iterações</span>
+              </div>
+              <button class="btn btn-primary" id="rl-btn-play">▶ Reproduzir Evolução</button>
+              <button class="btn" id="rl-preset-1">k = 1</button>
+              <button class="btn" id="rl-preset-15">k = 15 (Ótimo)</button>
+              <button class="btn" id="rl-preset-60">k = 60 (Ruído)</button>
+              <span id="rl-state-badge" class="badge badge-ok">Iterações ótimas</span>
+            </div>
+          </div>
+
+          <div class="demo-grid-4">
+            <div>
+              <canvas id="canvas-rl-deg" width="160" height="160" class="pixel-canvas"></canvas>
+              <div class="canvas-caption">1. Degradada Observada y</div>
+            </div>
+            <div>
+              <canvas id="canvas-rl-rest" width="160" height="160" class="pixel-canvas"></canvas>
+              <div class="canvas-caption">2. Estimativa Atual x̂^(k)</div>
+            </div>
+            <div>
+              <canvas id="canvas-rl-profile" width="300" height="160" class="vector-plot-canvas"></canvas>
+              <div class="canvas-caption">3. Perfil de Intensidade 1D</div>
+            </div>
+            <div class="card" style="padding: 10px; font-size: 11.5px; line-height: 1.45;">
+              <div class="card-title" style="font-size: 13px;">Curva de Semi-Convergência</div>
+              <p>O erro relativo à imagem real verdadeira primeiro <strong>decai</strong> até um mínimo ($k \approx 12\dots 18$) e depois <strong>começa a subir</strong>!</p>
+              <p style="margin-top: 6px;">
+                <strong>Por que isso ocorre?</strong> O método de máxima verossimilhança tenta ajustar a solução a cada fóton de ruído espúrio, gerando picos e grânulos artificiais.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ SLIDE 12 — VANTAGENS E LIMITAÇÕES DE RICHARDSON–LUCY ============ -->
+    <section class="slide" data-section="3 · Eduardo Marinho — Richardson–Lucy" aria-hidden="true">
+      <div class="slide-content">
+        <div class="slide-header anim">
+          <span class="slide-tag tag-edu">3 · Eduardo Marinho — Richardson–Lucy</span>
+          <h2>Richardson–Lucy: Vantagens e Limitações</h2>
+          <p class="subtitle">Por que o método é o padrão em astronomia e microscopia, e quais cuidados são indispensáveis.</p>
+        </div>
+        <div class="grid-2 anim">
+          <div class="card">
+            <div class="card-title">Vantagens Marcantes</div>
+            <div class="card-body">
+              <ul>
+                <li><strong>Positividade Intrínseca:</strong> Como a atualização é puramente multiplicativa, nunca são gerados valores negativos irreais, eliminando o fundo falso de Wiener.</li>
+                <li><strong>Super-Resolução de Fontes Pontuais:</strong> Capacidade comprovada de concentrar luz de estrelas ou moléculas fluorescentes desfocadas em pontos quase perfeitos (famoso pelo Telescópio Espacial Hubble).</li>
+                <li><strong>Conservação de Energia:</strong> A fotometria total dos objetos astronômicos ou biológicos é rigorosamente preservada.</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">Limitações Críticas</div>
+            <div class="card-body">
+              <ul>
+                <li><strong>Necessidade de Critério de Parada:</strong> Não existe convergência para a imagem original limpa. Se deixado rodar infinitamente, o ruído dominará a imagem.</li>
+                <li><strong>Custo Computacional Iterativo:</strong> Cada iteração exige 2 convoluções 2D completas (uma direta e uma retroprojetada).</li>
+                <li><strong>Artefato de Tabuleiro (Checkerboard / Noise Amplification):</strong> Em regiões homogêneas de baixa contagem, formam-se aglomerados granulares espúrios.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="callout callout-info anim">
+          <strong>Resumo Prático:</strong> Richardson–Lucy é o padrão de referência para fontes pontuais e contagem de fótons (Poisson), mas requer critério de parada heurístico ou regularização explícita para conter a semi-convergência.
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ SLIDE 13 — O QUE É ENTROPIA? ============ -->
+    <section class="slide" data-section="4 · Luis Jeronimo — Entropia" data-init="Entropy.initDemoShannon" aria-hidden="true">
+      <div class="slide-content">
+        <div class="slide-header anim">
+          <span class="slide-tag tag-luis">4 · Luis Jeronimo — Entropia</span>
+          <h2>O que é Entropia Aplicada a Imagens? (Demonstração D)</h2>
+          <p class="subtitle">A medida de informação e incerteza de Shannon e a desmistificação de um conceito comum.</p>
+        </div>
+        <div class="grid-2 anim">
+          <div class="card">
+            <div class="card-title">Entropia de Shannon (1948)</div>
+            <div class="formula-box">
+              $$H(X) = -\sum_{i=1}^{L} p_i \log_2(p_i)$$
+            </div>
+            <div class="card-body">
+              <p>Mede a incerteza ou dispersão da distribuição de probabilidade das intensidades de cinza (o histograma).</p>
+              <ul>
+                <li><strong>Distribuição Concentrada (Poucos Tons):</strong> Incerteza baixa $\to H(X)$ pequeno (ex.: imagem binária).</li>
+                <li><strong>Distribuição Plana (Uniforme):</strong> Todos os tons igualmente prováveis $\to$ incerteza máxima ($H = 8\text{ bits}$ para 256 níveis).</li>
+              </ul>
+              <div class="callout callout-warn" style="margin-top: 8px;">
+                <strong>Mito a Evitar:</strong> Maior entropia NÃO significa imagem mais nítida ou melhor! Ruído uniforme aleatório puro atinge a entropia máxima possível e não contém estrutura inteligível.
+              </div>
+            </div>
+          </div>
+
+          <div class="demo-box">
+            <div class="demo-title-row">
+              <span class="demo-title">Calculadora de Entropia e Histograma em Tempo Real</span>
+              <div class="control-group">
+                <label for="shannon-select">Cenário:</label>
+                <select id="shannon-select" class="btn">
+                  <option value="binary">1. Alto Contraste (Binária)</option>
+                  <option value="natural" selected>2. Imagem Natural Nítida</option>
+                  <option value="blurred">3. Imagem Desfocada</option>
+                  <option value="noise">4. Ruído Uniforme Puro</option>
+                </select>
+              </div>
+            </div>
+            <div class="grid-2" style="margin-top: 6px;">
+              <div>
+                <canvas id="canvas-shannon-img" width="160" height="160" class="pixel-canvas"></canvas>
+                <div class="canvas-caption">Imagem sob Análise</div>
+              </div>
+              <div>
+                <canvas id="canvas-shannon-hist" width="280" height="160" class="vector-plot-canvas"></canvas>
+                <div class="canvas-caption">Histograma de Intensidades p_i</div>
+              </div>
+            </div>
+            <p id="shannon-desc" style="font-size: 11.5px; color: var(--text-secondary); margin-top: 4px;"></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ SLIDE 14 — DECONVOLUÇÃO BASEADA EM ENTROPIA ============ -->
+    <section class="slide" data-section="4 · Luis Jeronimo — Entropia" aria-hidden="true">
+      <div class="slide-content">
+        <div class="slide-header anim">
+          <span class="slide-tag tag-luis">4 · Luis Jeronimo — Entropia</span>
+          <h2>Deconvolução Baseada em Entropia: O Método MEM</h2>
+          <p class="subtitle">O princípio de Jaynes aplicado à restauração: a formulação de Gull & Daniell (Nature 1978).</p>
+        </div>
+        <div class="grid-2 anim">
+          <div class="card">
+            <div class="card-title">A Formulação de Máxima Entropia (MEM)</div>
+            <div class="card-body">
+              <p>Não existe um algoritmo genérico "deconvolução por entropia". A formulação científica canônica de referência adotada é o <strong>Maximum Entropy Method (MEM)</strong> de Gull & Daniell (Nature, 1978) e Skilling (1989):</p>
+              <div class="formula-box">
+                $$\max_{\mathbf{x}} S(\mathbf{x}) \quad \text{sujeito a} \quad \|\mathbf{H}\mathbf{x} - \mathbf{y}\|_2^2 \le \sigma_n^2 \quad \text{e} \quad x_i \ge 0$$
+              </div>
+              <p>Onde <strong>$S(\mathbf{x})$</strong> é a entropia espacial relativa em relação a um modelo a priori <em>m</em>:</p>
+              <div class="formula-box">
+                $$S(\mathbf{x}) = -\sum_{i=1}^{N} x_i \ln\left( \frac{x_i}{m_i} \right)$$
+              </div>
+              <p>Se nenhuma informação espacial prévia estiver disponível, <em>m</em> é considerado uniforme.</p>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">Entropia como Regularizador na Otimização</div>
+            <div class="formula-box">
+              $$\hat{\mathbf{x}} = \arg\min_{\mathbf{x}} \left\{ \frac{1}{2}\|\mathbf{H}\mathbf{x} - \mathbf{y}\|_2^2 - \alpha S(\mathbf{x}) \right\}$$
+            </div>
+            <div class="card-body">
+              <ul>
+                <li><strong>Termo de Fidelidade aos Dados:</strong> $\|\mathbf{H}\mathbf{x} - \mathbf{y}\|_2^2$ garante que a imagem explicite as observações medidas pelo instrumento.</li>
+                <li><strong>Termo de Entropia $-\alpha S(\mathbf{x})$:</strong> Favorece a solução maximamente desprovida de preconceitos, repelindo variações locais não exigidas pelos dados.</li>
+                <li><strong>Eliminação Natural de Ringing:</strong> Ao contrário de Wiener, o MEM praticamente não produz anéis de Gibbs ao redor de fontes isoladas!</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ SLIDE 15 — ENTROPIA: INTERPRETAÇÃO, VANTAGENS E LIMITAÇÕES ============ -->
+    <section class="slide" data-section="4 · Luis Jeronimo — Entropia" data-init="Entropy.initDemoMEM" aria-hidden="true">
+      <div class="slide-content">
+        <div class="slide-header anim">
+          <span class="slide-tag tag-luis">4 · Luis Jeronimo — Entropia</span>
+          <h2>Entropia: Interpretação, Vantagens e Limitações</h2>
+          <p class="subtitle">Demonstração interativa do efeito do parâmetro α na regularização por máxima entropia.</p>
+        </div>
+
+        <div class="demo-box anim">
+          <div class="demo-title-row">
+            <span class="demo-title">Laboratório Interativo: MEM (Gull & Daniell) — Ajuste o Peso de Entropia α</span>
+            <div class="demo-controls">
+              <div class="control-group">
+                <label for="mem-alpha">Peso α:</label>
+                <input type="range" id="mem-alpha" min="0.001" max="0.10" step="0.004" value="0.02">
+                <span class="control-val" id="mem-alpha-val">α = 0.020</span>
+              </div>
+              <span id="mem-state-badge" class="badge badge-ok">α ideal</span>
+            </div>
+          </div>
+
+          <div class="demo-grid-4">
+            <div>
+              <canvas id="canvas-mem-deg" width="160" height="160" class="pixel-canvas"></canvas>
+              <div class="canvas-caption">1. Degradada Observada y</div>
+            </div>
+            <div>
+              <canvas id="canvas-mem-rest" width="160" height="160" class="pixel-canvas"></canvas>
+              <div class="canvas-caption">2. Restaurada x̂ (MEM)</div>
+            </div>
+            <div>
+              <canvas id="canvas-mem-profile" width="300" height="160" class="vector-plot-canvas"></canvas>
+              <div class="canvas-caption">3. Perfil 1D (Sem Ringing)</div>
+            </div>
+            <div class="card" style="padding: 10px; font-size: 11.5px; line-height: 1.45;">
+              <div class="card-title" style="font-size: 13px;">Balanço do MEM</div>
+              <p><strong>Vantagem:</strong> Excelente conservação do fundo escuro e fontes pontuais compactas.</p>
+              <p style="margin-top: 6px;"><strong>Limitação:</strong> Otimização não-linear com custo computacional moderado; excesso de α achata gradientes suaves para o modelo uniforme.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-info anim">
+          <strong>Resumo Prático:</strong> A deconvolução por máxima entropia (MEM) é a escolha de excelência quando a positividade estrita e a ausência absoluta de ringing são indispensáveis, especialmente em dados astronômicos de fontes isoladas sobre fundo escuro.
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ SLIDE 16 — O QUE É VARIAÇÃO TOTAL? ============ -->
+    <section class="slide" data-section="5 · Paulo Sérgio — Variação Total" aria-hidden="true">
+      <div class="slide-content">
+        <div class="slide-header anim">
+          <span class="slide-tag tag-paulo">5 · Paulo Sérgio — Variação Total</span>
+          <h2>O que é Variação Total (TV)? O Modelo ROF (1992)</h2>
+          <p class="subtitle">A revolução da norma L1 do gradiente para preservação estrita de bordas descontínuas.</p>
+        </div>
+        <div class="grid-2 anim">
+          <div class="card">
+            <div class="card-title">A Ideia de Rudin, Osher e Fatemi (ROF)</div>
+            <div class="card-body">
+              <p>Em 1992, Leonid Rudin, Stanley Osher e Emad Fatemi introduziram o funcional da <strong>Variação Total (TV)</strong>:</p>
+              <div class="formula-box">
+                $$\mathrm{TV}(\mathbf{x}) = \int_\Omega |\nabla \mathbf{x}| \, ds \, dt = \iint_\Omega \sqrt{\left(\frac{\partial \mathbf{x}}{\partial s}\right)^2 + \left(\frac{\partial \mathbf{x}}{\partial t}\right)^2} \, ds \, dt$$
+              </div>
+              <p>No domínio discreto digital 2D:</p>
+              <div class="formula-box">
+                $$\mathrm{TV}_{\text{discreto}}(\mathbf{x}) = \sum_{i} \sum_{j} \sqrt{ (x_{i+1, j} - x_{i, j})^2 + (x_{i, j+1} - x_{i, j})^2 }$$
+              </div>
+              <p>Mede a soma das magnitudes de todas as variações espaciais presentes na imagem.</p>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">Por que a Norma L1 Preserva Bordas?</div>
+            <div class="card-body">
+              <ul>
+                <li><strong>Regularização Quadrática Clássica (Tikhonov / Sobolev):</strong> Penaliza $\int |\nabla \mathbf{x}|^2$. Uma transição abrupta (degrau) tem gradiente muito alto, gerando penalidade quadrática gigante. O algoritmo suaviza a borda para minimizar o quadrado.</li>
+                <li><strong>Regularização $L_1$ da Variação Total (ROF):</strong> Penaliza apenas a altura do degrau $\int |\nabla \mathbf{x}|$. Não importa se a transição ocorre em 1 pixel ou em 10 pixels: a penalidade $L_1$ é exatamente a mesma!</li>
+                <li><strong>Consequência Direta:</strong> Descontinuidades limpas (bordas) são poupadas da suavização, enquanto oscilações aleatórias pequenas (ruído) são eliminadas.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ SLIDE 17 — RESTAURAÇÃO COM REGULARIZAÇÃO TV ============ -->
+    <section class="slide" data-section="5 · Paulo Sérgio — Variação Total" aria-hidden="true">
+      <div class="slide-content">
+        <div class="slide-header anim">
+          <span class="slide-tag tag-paulo">5 · Paulo Sérgio — Variação Total</span>
+          <h2>Restauração e Deconvolução com Regularização TV</h2>
+          <p class="subtitle">A formulação variacional que equilibra fidelidade aos dados ópticos e parcimônia espacial.</p>
+        </div>
+        <div class="formula-box anim">
+          $$\hat{\mathbf{x}} = \arg\min_{\mathbf{x}} \left\{ \frac{1}{2}\|\mathbf{H}\mathbf{x} - \mathbf{y}\|_2^2 + \lambda \, \mathrm{TV}(\mathbf{x}) \right\}$$
+        </div>
+        <div class="grid-2 anim">
+          <div class="card">
+            <div class="card-title">Análise dos Termos da Otimização</div>
+            <div class="card-body">
+              <div class="formula-legend">
+                <div><span class="symbol">$\|\mathbf{H}\mathbf{x} - \mathbf{y}\|_2^2$</span> : Termo de fidelidade aos dados ópticos (resíduo $L_2$)</div>
+                <div><span class="symbol">$\mathrm{TV}(\mathbf{x})$</span> : Penalização da variação total espacial (regularizador $L_1$)</div>
+                <div><span class="symbol">$\lambda$</span> : Hiperparâmetro de peso da regularização</div>
+              </div>
+              <p style="margin-top: 10px;">
+                A derivada de Euler-Lagrange da Variação Total resulta no operador de curvatura média:
+              </p>
+              <div class="formula-box">
+                $$\frac{\partial \, \mathrm{TV}}{\partial \mathbf{x}} = -\operatorname{div}\left( \frac{\nabla \mathbf{x}}{|\nabla \mathbf{x}|} \right)$$
+              </div>
+              <p>O fluxo de restauração atua como uma difusão anisotrópica: suaviza intensamente paralelamente à borda, mas bloqueia totalmente a difusão perpendicularmente à borda!</p>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">Métodos Numéricos de Resolução</div>
+            <div class="card-body">
+              <p>A não-diferenciabilidade em $|\nabla \mathbf{x}| = 0$ impediu soluções analíticas diretas e impulsionou métodos modernos de otimização convexa:</p>
+              <ul>
+                <li><strong>Gradiente Descendente Regularizado:</strong> $|\nabla \mathbf{x}|_\varepsilon = \sqrt{ |\nabla \mathbf{x}|^2 + \varepsilon^2 }$.</li>
+                <li><strong>Algoritmo Dual de Chambolle (2004):</strong> Projeção ortogonal no espaço dual das divergências.</li>
+                <li><strong>Métodos de Divisão Proximal / ADMM:</strong> Alternating Direction Method of Multipliers para deconvolução TV em larga escala.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ SLIDE 18 — EFEITO DO PARÂMETRO λ ============ -->
+    <section class="slide" data-section="5 · Paulo Sérgio — Variação Total" data-init="TV.initDemoE" aria-hidden="true">
+      <div class="slide-content">
+        <div class="slide-header anim">
+          <span class="slide-tag tag-paulo">5 · Paulo Sérgio — Variação Total</span>
+          <h2>Efeito do Parâmetro de Regularização λ (Demonstração E)</h2>
+          <p class="subtitle">O controle do balanço e a visualização do efeito de Degraus Artificiais (Staircasing).</p>
+        </div>
+
+        <div class="demo-box anim">
+          <div class="demo-title-row">
+            <span class="demo-title">Laboratório Interativo: Restauração por TV — Varie o Parâmetro λ</span>
+            <div class="demo-controls">
+              <div class="control-group">
+                <label for="tv-lambda">Parâmetro λ:</label>
+                <input type="range" id="tv-lambda" min="0.005" max="0.160" step="0.005" value="0.035">
+                <span class="control-val" id="tv-lambda-val">λ = 0.035</span>
+              </div>
+              <button class="btn" id="tv-preset-low">λ Baixo (0.005)</button>
+              <button class="btn btn-primary" id="tv-preset-opt">λ Ótimo (0.035)</button>
+              <button class="btn" id="tv-preset-high">λ Alto (0.140)</button>
+              <span id="tv-state-badge" class="badge badge-ok">λ equilibrado</span>
+            </div>
+          </div>
+
+          <div class="demo-grid-4">
+            <div>
+              <canvas id="canvas-tv-deg" width="160" height="160" class="pixel-canvas"></canvas>
+              <div class="canvas-caption">1. Degradada Observada y</div>
+            </div>
+            <div>
+              <canvas id="canvas-tv-rest" width="160" height="160" class="pixel-canvas"></canvas>
+              <div class="canvas-caption">2. Estimativa x̂ (TV ROF)</div>
+            </div>
+            <div>
+              <canvas id="canvas-tv-profile" width="300" height="160" class="vector-plot-canvas"></canvas>
+              <div class="canvas-caption">3. Perfil 1D (Rampa vs Disco)</div>
+            </div>
+            <div class="card" style="padding: 10px; font-size: 11.5px; line-height: 1.45;">
+              <div class="card-title" style="font-size: 13px;">O Efeito Staircasing</div>
+              <p>Observe a <strong>rampa contínua</strong> superior esquerda na imagem e no perfil 1D:</p>
+              <p style="margin-top: 6px;">
+                Com $\lambda$ elevado, a Variação Total transforma rampas suaves em <strong>degraus constantes planos</strong> (efeito cartoon). Bordas abruptas permanecem perfeitas, mas gradientes contínuos sofrem discretização artificial.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ SLIDE 19 — VANTAGENS E LIMITAÇÕES DA VARIAÇÃO TOTAL ============ -->
+    <section class="slide" data-section="5 · Paulo Sérgio — Variação Total" aria-hidden="true">
+      <div class="slide-content">
+        <div class="slide-header anim">
+          <span class="slide-tag tag-paulo">5 · Paulo Sérgio — Variação Total</span>
+          <h2>Variação Total: Vantagens e Limitações</h2>
+          <p class="subtitle">Síntese das propriedades geométricas do modelo ROF e variantes contemporâneas.</p>
+        </div>
+        <div class="grid-2 anim">
+          <div class="card">
+            <div class="card-title">Vantagens Primordiais</div>
+            <div class="card-body">
+              <ul>
+                <li><strong>Preservação Excepcional de Bordas:</strong> Não introduz anelamento de Gibbs oscilatório, comum em métodos lineares no domínio de Fourier.</li>
+                <li><strong>Excelente Supressão de Ruído:</strong> O ruído gaussiano tem alta variação total local e é implacavelmente filtrado.</li>
+                <li><strong>Estrutura Matemática Convexa:</strong> O funcional TV(x) é convexo, garantindo ausência de mínimos locais falsos e convergência estável.</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">Limitações e Efeitos Colaterais</div>
+            <div class="card-body">
+              <ul>
+                <li><strong>Efeito Staircasing (Degraus):</strong> Desfavorece gradientes suaves naturais, fatiando-os em platôs homogêneos.</li>
+                <li><strong>Perda de Texturas Finas:</strong> Detalhes oscilatórios periódicos de baixo relevo (como tecidos biológicos e grama) podem ser interpretados como ruído e apagados.</li>
+                <li><strong>Custo Numérico:</strong> Exige múltiplos passos de algoritmos iterativos proximais não-lineares.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="callout callout-info anim">
+          <strong>Variantes Modernas:</strong> Para combater o staircasing, a literatura recente propõe <em>Total Generalized Variation (TGV)</em> (Bredies et al., 2010) e TV de ordem fracionária, que penalizam simultaneamente a 1ª e a 2ª derivadas.
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ SLIDE 20 — APLICAÇÕES EM MEDICINA ============ -->
+    <section class="slide" data-section="Aplicações · Medicina" aria-hidden="true">
+      <div class="slide-content">
+        <div class="slide-header anim">
+          <span class="slide-tag tag-paulo">5 · Paulo Sérgio — Aplicações</span>
+          <h2>Aplicações da Deconvolução em Medicina</h2>
+          <p class="subtitle">Recuperação de resolução subcelular e aumento da acurácia diagnóstica não-invasiva.</p>
+        </div>
+        <div class="pipeline-flow anim" style="margin-bottom: 6px;">
+          <div class="pipe-step">
+            <span class="pipe-step-name">1. Aquisição Clínica</span>
+            <span class="pipe-step-desc">Fótons, raios-X, ressonância</span>
+          </div>
+          <span class="pipe-arrow">→</span>
+          <div class="pipe-step">
+            <span class="pipe-step-name">2. Degradação Instrumental</span>
+            <span class="pipe-step-desc">Difração da lente, PSF, ruído térmico</span>
+          </div>
+          <span class="pipe-arrow">→</span>
+          <div class="pipe-step">
+            <span class="pipe-step-name">3. Deconvolução / Restauração</span>
+            <span class="pipe-step-desc">Wiener, RL ou TV regularizada</span>
+          </div>
+          <span class="pipe-arrow">→</span>
+          <div class="pipe-step">
+            <span class="pipe-step-name">4. Diagnóstico / Segmentação</span>
+            <span class="pipe-step-desc">Medição quantitativa confiável</span>
+          </div>
+        </div>
+
+        <div class="grid-4 anim">
+          <div class="card">
+            <div class="card-title">Microscopia Confocal e Fluorescência</div>
+            <div class="card-body">
+              A difração limita a resolução axial e lateral. Richardson-Lucy é o padrão mundial para recuperar vesículas e filamentos em biologia molecular.
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">Tomografia Computadorizada (TC)</div>
+            <div class="card-body">
+              Permite reduzir a dose de radiação ionizante no paciente: algoritmos de Variação Total reconstroem imagens nítidas mesmo com poucas projeções angulares.
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">Ressonância Magnética (RM)</div>
+            <div class="card-body">
+              Combina restauração TV e compressão sensoriada (Compressed Sensing) para acelerar a aquisição e evitar que o paciente precise ficar imóvel por muito tempo.
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">Oftalmologia (OCT / Fundo de Olho)</div>
+            <div class="card-body">
+              Corrige micro-movimentos involuntários dos olhos (tremor sacádico) e o astigmatismo das lentes oculares, evidenciando camadas finas da retina.
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-warn anim">
+          <strong>Princípio Ético e Clínico:</strong> Nenhum software de restauração garante diagnóstico médico infalível. Artefatos de deconvolução (como ringing ou staircasing) podem simular patologias inexistentes se o modelo da PSF estiver incorreto.
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ SLIDE 21 — APLICAÇÕES EM ENGENHARIA ============ -->
+    <section class="slide" data-section="Aplicações · Engenharia" aria-hidden="true">
+      <div class="slide-content">
+        <div class="slide-header anim">
+          <span class="slide-tag tag-paulo">5 · Paulo Sérgio — Aplicações</span>
+          <h2>Aplicações da Deconvolução em Engenharia</h2>
+          <p class="subtitle">Inspeção em esteiras de alta velocidade, astronomia e sensoriamento remoto por satélites.</p>
+        </div>
+        <div class="grid-4 anim">
+          <div class="card">
+            <div class="card-title">Inspeção Industrial em Alta Velocidade</div>
+            <div class="card-body">
+              Peças mecânicas e circuitos eletrônicos em esteiras sofrem <em>motion blur</em> severo. A deconvolução recupera bordas de micro-fissuras para inspeção computadorizada.
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">Astronomia Observacional</div>
+            <div class="card-body">
+              Telescópios espaciais e terrestres enfrentam turbulência atmosférica e difração de abertura. O filtro de Wiener e o MEM isolam galáxias e estrelas binárias.
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">Sensoriamento Remoto e Satélites</div>
+            <div class="card-body">
+              Imagens de satélites ópticos sofrem desfoque pelo movimento orbital e espalhamento na atmosfera. A restauração TV melhora a delimitação de desmatamento e lavouras.
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">Microscopia Eletrônica (MEV / MET)</div>
+            <div class="card-body">
+              O feixe de elétrons possui perfil de intensidade que age como uma PSF gaussiana. A deconvolução revela nanoestruturas e defeitos em semicondutores.
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-info anim">
+          <strong>Integração com Pipelines de Visão:</strong> A restauração frequentemente precede etapas de <em>segmentação</em> (Seminário 6) e classificação por redes neurais convolucionais (CNNs).
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ SLIDE 22 — COMPARAÇÃO DOS QUATRO MÉTODOS ============ -->
+    <section class="slide" data-section="Comparação dos Métodos" aria-hidden="true">
+      <div class="slide-content">
+        <div class="slide-header anim">
+          <span class="slide-tag tag-paulo">5 · Paulo Sérgio — Comparação</span>
+          <h2>Comparação Analítica dos Quatro Métodos</h2>
+          <p class="subtitle">Tabela comparativa resumindo hipóteses, custo computacional e limitações intrínsecas.</p>
+        </div>
+
+        <div class="cmp-table-container anim">
+          <table class="cmp-table">
+            <thead>
+              <tr>
+                <th>Método</th>
+                <th>Ideia Central</th>
+                <th>Domínio / Algoritmo</th>
+                <th>Modelo de Ruído Assumido</th>
+                <th>Custo Computacional</th>
+                <th>Limitação Típica</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Wiener</strong></td>
+                <td>Filtragem estatística MMSE</td>
+                <td>Frequência (FFT 2D) analítica</td>
+                <td>Gaussiano aditivo</td>
+                <td>Muito baixo: O(N log N)</td>
+                <td>Anelamento de Gibbs e valores negativos espúrios</td>
+              </tr>
+              <tr>
+                <td><strong>Richardson–Lucy</strong></td>
+                <td>Atualização multiplicativa Bayesiana</td>
+                <td>Espacial iterativo (EM)</td>
+                <td>Poisson (contagem de fótons)</td>
+                <td>Médio: 2 convoluções por iteração</td>
+                <td>Semi-convergência e amplificação granular de ruído</td>
+              </tr>
+              <tr>
+                <td><strong>Máxima Entropia (MEM)</strong></td>
+                <td>Regularização por critério de informação</td>
+                <td>Espacial otimização com modelo a priori</td>
+                <td>Poisson / Gaussiano</td>
+                <td>Médio-Alto: solver não-linear</td>
+                <td>Tendência a uniformizar contrastes se α for elevado</td>
+              </tr>
+              <tr>
+                <td><strong>Variação Total (ROF)</strong></td>
+                <td>Regularização L1 da norma do gradiente</td>
+                <td>Espacial variacional / dual</td>
+                <td>Gaussiano / Laplaciano</td>
+                <td>Médio-Alto: métodos proximais iterativos</td>
+                <td>Efeito Staircasing (degraus) e perda de texturas finas</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="callout callout-info anim" style="margin-top: 10px;">
+          <strong>Conclusão Teórica:</strong> Não existe um algoritmo universalmente superior. A escolha depende estritamente da física da câmera, do tipo de ruído predominante e da geometria dos detalhes a serem recuperados.
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ SLIDE 23 — MESMA IMAGEM, DIFERENTES RESTAURAÇÕES ============ -->
+    <section class="slide" data-section="Bancada Comparativa" data-init="TV.initComparisonSlide" aria-hidden="true">
+      <div class="slide-content">
+        <div class="slide-header anim">
+          <span class="slide-tag tag-paulo">5 · Paulo Sérgio — Comparação</span>
+          <h2>Mesma Imagem, Quatro Restaurações Diferentes</h2>
+          <p class="subtitle">Bancada experimental central: inspecione e compare os quatro métodos sobre a mesma cena degradada.</p>
+        </div>
+
+        <div class="demo-box anim">
+          <div class="demo-title-row">
+            <div class="comp-tabs">
+              <button class="comp-tab-btn active" data-method="wiener">1. Wiener</button>
+              <button class="comp-tab-btn" data-method="rl">2. Richardson–Lucy</button>
+              <button class="comp-tab-btn" data-method="mem">3. Máxima Entropia (MEM)</button>
+              <button class="comp-tab-btn" data-method="tv">4. Variação Total (TV)</button>
+            </div>
+            <span id="cmp-method-badge" class="badge">Wiener</span>
+          </div>
+
+          <div class="demo-grid-4" style="margin-top: 8px;">
+            <div>
+              <canvas id="canvas-cmp-orig" width="160" height="160" class="pixel-canvas"></canvas>
+              <div class="canvas-caption">Referência Original Ideal</div>
+            </div>
+            <div>
+              <canvas id="canvas-cmp-deg" width="160" height="160" class="pixel-canvas"></canvas>
+              <div class="canvas-caption">Degradada (Desfoque + Ruído)</div>
+            </div>
+            <div>
+              <canvas id="canvas-cmp-rest" width="160" height="160" class="pixel-canvas"></canvas>
+              <div class="canvas-caption">Resultado do Método Selecionado</div>
+            </div>
+            <div>
+              <canvas id="canvas-cmp-profile" width="300" height="160" class="vector-plot-canvas"></canvas>
+              <div class="canvas-caption">Perfil de Intensidade 1D (Y=20)</div>
+            </div>
+          </div>
+
+          <div class="card" style="padding: 10px 14px; margin-top: 4px;">
+            <p id="cmp-desc-text" style="font-size: 13px; color: var(--text-secondary); line-height: 1.4;"></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ SLIDE 24 — CONCLUSÕES E DISCUSSÃO ============ -->
+    <section class="slide" data-section="Conclusões e Discussão" aria-hidden="true">
+      <div class="slide-content">
+        <div class="slide-header anim">
+          <span class="slide-tag tag-geral">Fechamento do Grupo</span>
+          <h2>Conclusões e Pergunta para Discussão</h2>
+          <p class="subtitle">Síntese dos conceitos fundamentais de PDI e fatores práticos para tomada de decisão em engenharia.</p>
+        </div>
+
+        <div class="hero-question anim">
+          <h3>Pergunta Provocativa para a Turma:</h3>
+          <p style="font-size: 16px; font-weight: 600; color: var(--text-primary);">
+            "Se você recebesse uma imagem altamente corrompida por desfoque óptico e ruído térmico, qual método você escolheria para restaurá-la?"
+          </p>
+          <div class="keywords-cloud">
+            <span class="keyword-chip">1. Degradação Óptica</span>
+            <span class="keyword-chip">2. Função PSF</span>
+            <span class="keyword-chip">3. Ruído Estocástico</span>
+            <span class="keyword-chip">4. Problema Inverso</span>
+            <span class="keyword-chip">5. Filtragem em Frequência</span>
+            <span class="keyword-chip">6. Iterações Bayesianas</span>
+            <span class="keyword-chip">7. Entropia / Regularização</span>
+            <span class="keyword-chip">8. Variação Total L1</span>
+          </div>
+        </div>
+
+        <div class="grid-3 anim">
+          <div class="card">
+            <div class="card-title">Quando Escolher Wiener?</div>
+            <div class="card-body">
+              Quando se necessita de processamento em tempo real (vídeo a 60 fps) e a relação sinal-ruído média é estável, tolerando-se leve anelamento.
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">Quando Escolher Richardson–Lucy?</div>
+            <div class="card-body">
+              Quando o ruído for de baixa contagem de fótons (astronomia, microscopia de fluorescência) e a preservação de fontes pontuais for o objetivo crítico.
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">Quando Escolher Variação Total?</div>
+            <div class="card-body">
+              Quando a imagem for composta de objetos com bordas geométricas e blocos bem definidos (tomografia médica, leitura de placas, circuitos integrados).
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ SLIDE 25 — REFERÊNCIAS ============ -->
+    <section class="slide" data-section="Referências" aria-hidden="true">
+      <div class="slide-content">
+        <div class="slide-header anim">
+          <span class="slide-tag tag-geral">Referências Bibliográficas Reais</span>
+          <h2>Referências Acadêmicas e Artigos Seminais</h2>
+          <p class="subtitle">Fontes primárias verificáveis na literatura de Processamento Digital de Imagens e Problemas Inversos.</p>
+        </div>
+
+        <div class="ref-list anim">
+          <div class="ref-item">
+            <strong>Gonzalez, R. C., & Woods, R. E. (2018).</strong><br>
+            <em>Digital Image Processing</em> (4th ed.). Pearson.<br>
+            Capítulo 5: Image Restoration and Reconstruction.
+          </div>
+
+          <div class="ref-item">
+            <strong>Wiener, N. (1949).</strong><br>
+            <em>Extrapolation, Interpolation, and Smoothing of Stationary Time Series</em>. MIT Press.<br>
+            Fundamentos do filtro ótimo linear MMSE.
+          </div>
+
+          <div class="ref-item">
+            <strong>Richardson, W. H. (1972).</strong><br>
+            Bayesian-Based Iterative Method of Image Restoration.<br>
+            <em>Journal of the Optical Society of America</em>, 62(1), 55–59. <span class="doi">doi:10.1364/JOSA.62.000055</span>
+          </div>
+
+          <div class="ref-item">
+            <strong>Lucy, L. B. (1974).</strong><br>
+            An iterative technique for the rectification of observed distributions.<br>
+            <em>The Astronomical Journal</em>, 79(6), 745–754. <span class="doi">doi:10.1086/111605</span>
+          </div>
+
+          <div class="ref-item">
+            <strong>Gull, S. F., & Daniell, G. J. (1978).</strong><br>
+            Image reconstruction from incomplete and noisy data.<br>
+            <em>Nature</em>, 272(5655), 686–690. <span class="doi">doi:10.1038/272686a0</span>
+          </div>
+
+          <div class="ref-item">
+            <strong>Rudin, L. I., Osher, S., & Fatemi, E. (1992).</strong><br>
+            Nonlinear total variation based noise removal algorithms.<br>
+            <em>Physica D: Nonlinear Phenomena</em>, 60(1-4), 259–268. <span class="doi">doi:10.1016/0167-2789(92)90242-F</span>
+          </div>
+
+          <div class="ref-item">
+            <strong>Chambolle, A. (2004).</strong><br>
+            An Algorithm for Total Variation Minimization and Applications.<br>
+            <em>Journal of Mathematical Imaging and Vision</em>, 20, 89–97. <span class="doi">doi:10.1023/B:JMIV.0000011321.19549.88</span>
+          </div>
+
+          <div class="ref-item">
+            <strong>Bertero, M., & Boccacci, P. (1998).</strong><br>
+            <em>Introduction to Inverse Problems in Imaging</em>. CRC Press.<br>
+            Fundamentos matemáticos e regularização de problemas inversos mal-postos.
+          </div>
+        </div>
+
+        <div class="callout callout-info anim" style="margin-top: 4px;">
+          Apresentação desenvolvida para a disciplina de Processamento Digital de Imagens (PDI). Ciência da Computação.
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ======================= SCRIPTS ======================= -->
+  <script src="js/theme.js"></script>
+  <script src="js/presentation.js"></script>
+  <script src="js/degradation.js"></script>
+  <script src="js/wiener.js"></script>
+  <script src="js/richardsonLucy.js"></script>
+  <script src="js/entropy.js"></script>
+  <script src="js/totalVariation.js"></script>
+</body>
+</html>

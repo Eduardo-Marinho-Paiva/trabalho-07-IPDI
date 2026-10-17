@@ -1,0 +1,81 @@
+/* ============================================================
+   light.css — Tema Claro (Padrão) · Seminário 7: Deconvolução e Restauração
+   Projetado para excelente legibilidade em projetores de sala de aula e notebooks.
+   ============================================================ */
+body.light, body:not(.dark) {
+  --bg: #f8fafc;
+  --card-bg: #ffffff;
+  --card-bg-trans: rgba(255, 255, 255, 0.92);
+  --chrome-bg: rgba(255, 255, 255, 0.88);
+  --canvas-bg: #f1f5f9;
+
+  --text-primary: #0f172a;
+  --text-secondary: #334155;
+  --text-tertiary: #64748b;
+  --text-muted: #94a3b8;
+
+  --border: #e2e8f0;
+  --border-strong: #cbd5e1;
+  --hover-bg: #f1f5f9;
+  --tag-bg: #f8fafc;
+  --progress-bg: #e2e8f0;
+
+  --accent: #2563eb;
+  --accent-light: #3b82f6;
+  --accent-bg: #eff6ff;
+  --accent-ring: rgba(37, 99, 235, 0.22);
+  --accent-2: #0284c7;
+
+  /* Cores por Integrante */
+  --c-ana: #2563eb;       /* Azul: Fundamentos, Degradação e Modelo */
+  --c-cindy: #059669;     /* Verde Esmeralda: Deconvolução de Wiener */
+  --c-edu: #d97706;       /* Âmbar: Richardson-Lucy */
+  --c-luis: #7c3aed;      /* Roxo Violeta: Entropia */
+  --c-paulo: #e11d48;     /* Rosa Carmim: Variação Total e Aplicações */
+
+  --tag-ana-bg: #eff6ff; --tag-ana-fg: #1d4ed8;
+  --tag-cindy-bg: #ecfdf5; --tag-cindy-fg: #047857;
+  --tag-edu-bg: #fffbeb; --tag-edu-fg: #b45309;
+  --tag-luis-bg: #f5f3ff; --tag-luis-fg: #6d28d9;
+  --tag-paulo-bg: #fff1f2; --tag-paulo-fg: #be123c;
+  --tag-geral-bg: #f1f5f9; --tag-geral-fg: #334155;
+
+  --c-ok: #059669;
+  --c-warn: #e11d48;
+  --c-info: #0284c7;
+  --ok-bg: #ecfdf5;
+  --warn-bg: #fff1f2;
+
+  --cover-a: #f8fafc;
+  --cover-b: #eff6ff;
+  --cover-c: #f5f3ff;
+  --pat-grid: rgba(15, 23, 42, 0.04);
+  --pat-dot: rgba(37, 99, 235, 0.07);
+
+  --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.05);
+  --shadow-md: 0 4px 14px rgba(15, 23, 42, 0.07);
+  --shadow-lg: 0 12px 30px rgba(15, 23, 42, 0.09);
+
+  --code-bg: #f1f5f9;
+  --code-fg: #0f172a;
+}
+
+body.light {
+  background: var(--bg);
+  color: var(--text-primary);
+}
+
+body.light .slide-cover {
+  background: radial-gradient(circle at 10% 20%, #eff6ff 0%, #ffffff 60%, #f5f3ff 100%);
+}
+
+body.light canvas {
+  background: var(--canvas-bg);
+}
+
+body.light .card,
+body.light .demo-box,
+body.light .formula-box,
+body.light .member-pill {
+  box-shadow: var(--shadow-sm);
+}
